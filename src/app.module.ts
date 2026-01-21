@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
-import { ParkingSessionModule } from './modules/parking-session/parking-session.module';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+
+import { ParkingSessionsModule } from './modules/parking-sessions/parking-sessions.module';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
       autoSchemaFile: 'src/schema.gql',
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
-    ParkingSessionModule,
+    ParkingSessionsModule,
   ],
   controllers: [],
   providers: [],

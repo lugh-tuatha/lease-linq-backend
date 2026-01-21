@@ -8,8 +8,12 @@ type ParkingSession {
   vehicleModel: String
   plateNumber: String!
   enteredAt: DateTime!
-  exitedAt: Float
-  parkingCredits: Float
+  exitedAt: DateTime
+  durationMinutes: Int
+  parkingCredits: Int
+  parkingFee: Float
+  parkingState: ParkingState!
+  paymentStatus: PaymentStatus!
   guardRemarks: String
 }
 
@@ -24,6 +28,42 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+enum ParkingState {
+  ACTIVE
+  EXITED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  OVERDUE
+}
+
+type PaginationMeta {
+  total: Int!
+  page: Int!
+  limit: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type PaginatedParkingSessions {
+  data: [ParkingSession!]!
+  meta: PaginationMeta!
+}
+
 type Query {
-  parkingSessions: [ParkingSession!]!
+  parkingSessions(page: Int!, limit: Int!): PaginatedParkingSessions!
+  parkingSessionsByParkingState(page: Int!, limit: Int!, parkingState: String!): PaginatedParkingSessions!
+}
+
+type Mutation {
+  createParkingSession(input: CreateParkingSessionInput!): ParkingSession!
+  exitParkingSession(id: String!): ParkingSession!
+}
+
+input CreateParkingSessionInput {
+  vehicleType: String!
+  plateNumber: String!
 }
