@@ -24,4 +24,9 @@ export class PrintController {
   ) {
     return this.printService.printExitReceipt(printExitReceiptDTO);
   }
+
+  @Get('health')
+  async printHealth() {
+    return { status: 'health', timestamp: new Date().toISOString() };
+  }
 }

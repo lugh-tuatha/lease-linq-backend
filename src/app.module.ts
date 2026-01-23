@@ -13,8 +13,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: false,
-      autoSchemaFile: 'src/schema.gql',
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      autoSchemaFile: true,
+      introspection: true,
+      plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
     }),
     EventEmitterModule.forRoot(),
     ParkingSessionsModule,
