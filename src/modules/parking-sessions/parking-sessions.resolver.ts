@@ -5,10 +5,14 @@ import { ParkingSessionsArgs } from './args/parking-sessions.args';
 import { CreateParkingSessionInput } from './input/create-parking-session.input';
 import { GetParkingSessionsByParkingStateArgs } from './args/get-parking-sessions-by-parking-state.args';
 import { PaginatedParkingSessions } from './types/paginated-parking-session.type';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Resolver()
 export class ParkingSessionsResolver {
-  constructor(private readonly parkingSessionsService: ParkingSessionsService) {}
+  constructor(
+    private readonly parkingSessionsService: ParkingSessionsService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   @Query(()=> PaginatedParkingSessions, { name: 'parkingSessions' })
   async getAllParkingSessions(
@@ -18,10 +22,14 @@ export class ParkingSessionsResolver {
   }
 
   @Mutation(() => ParkingSession, { name: 'createParkingSession' })
-  createParkingSession(
+  async createParkingSession(
     @Args('input') input: CreateParkingSessionInput
   ) {
-    return this.parkingSessionsService.createParkingSession(input);
+    const session = await this.parkingSessionsService.createParkingSession(input);
+
+    this.eventEmitter.emit('parking.created', session);
+
+    return session;
   }
 
   @Query(()=> PaginatedParkingSessions, { name: 'parkingSessionsByParkingState' })
@@ -35,6 +43,10 @@ export class ParkingSessionsResolver {
   async exitParkingSession(
     @Args('id', { type: () => String }) id: string,
   ): Promise<ParkingSession> {
-    return this.parkingSessionsService.exitParkingSession(id);
+    const session = await this.parkingSessionsService.exitParkingSession(id);
+
+    this.eventEmitter.emit('parking.exited', session);
+
+    return session;
   }
 }

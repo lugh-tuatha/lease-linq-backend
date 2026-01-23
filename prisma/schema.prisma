@@ -10,7 +10,7 @@ datasource db {
 
 model ParkingSessions {
   id                String            @id @default(uuid())  
-  vehicleType       VehicleType?      @map("vehicle_type")
+  vehicleType       VehicleType       @map("vehicle_type")
   vehicleModel      String?           @map("vehicle_model")
   plateNumber       String            @map("plate_number")
   enteredAt         DateTime          @map("entered_at")

@@ -103,12 +103,17 @@ export class ParkingSessionsService {
       (exitedAt.getTime() - session.enteredAt.getTime()) / 60000
     );
 
+    const ratePerHour = 25;
+    const hours = Math.ceil(durationMinutes / 60);
+    const parkingFee = ratePerHour * hours;
+
     return this.prisma.parkingSessions.update({
       where: { id },
       data: {
         parkingState: 'EXITED',
         exitedAt,
         durationMinutes,
+        parkingFee,
         paymentStatus: 'UNPAID',
       },
     })
