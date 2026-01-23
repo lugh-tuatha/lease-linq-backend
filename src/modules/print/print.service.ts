@@ -1,27 +1,34 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PrintService {
-  constructor(private readonly httpService: HttpService) {}
+  private readonly printerBaseUrl: string;
 
-  readonly PRINTER_BASE_URL = 'http://192.168.5.73:8080/print';
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {
+    this.printerBaseUrl = this.configService.get<string>('printer.baseUrl')!;
+    console.log('🖨️  Printer Base URL:', this.printerBaseUrl);
+  }
   
   async printHelloWorld() {
-    const res = await firstValueFrom(this.httpService.get(`${this.PRINTER_BASE_URL}/hello`));
+    const res = await firstValueFrom(this.httpService.get(`${this.printerBaseUrl}/hello`));
 
     return res.data;
   }
 
   async printEntryTicket(printEntryTicketDTO: any) {
-    const res = await firstValueFrom(this.httpService.post(`${this.PRINTER_BASE_URL}/entry-ticket`, printEntryTicketDTO));
+    const res = await firstValueFrom(this.httpService.post(`${this.printerBaseUrl}/entry-ticket`, printEntryTicketDTO));
 
     return res.data;
   }
 
   async printExitReceipt(printExitReceiptDTO: any) {
-    const res = await firstValueFrom(this.httpService.post(`${this.PRINTER_BASE_URL}/receipt`, printExitReceiptDTO));
+    const res = await firstValueFrom(this.httpService.post(`${this.printerBaseUrl}/receipt`, printExitReceiptDTO));
 
     return res.data;
   }

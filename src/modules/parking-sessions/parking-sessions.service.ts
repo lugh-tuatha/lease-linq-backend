@@ -59,8 +59,8 @@ export class ParkingSessionsService {
         where: {
           parkingState: parkingState,
         },
-        take: limit,
-        skip: skip,
+        // take: limit,
+        // skip: skip,
         orderBy: { createdAt: 'desc' }
       }),
       this.prisma.parkingSessions.count({

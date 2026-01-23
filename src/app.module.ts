@@ -7,9 +7,15 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { ParkingSessionsModule } from './modules/parking-sessions/parking-sessions.module';
 import { PrintModule } from './modules/print/print.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: false,

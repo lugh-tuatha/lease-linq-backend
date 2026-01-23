@@ -5,7 +5,12 @@ import { HttpModule } from '@nestjs/axios';
 import { PrintingListener } from './printing.listener';
 
 @Module({
-  imports: [HttpModule],
+  imports: [
+    HttpModule.register({
+      timeout: 3000,
+      maxRedirects: 0,
+    })
+  ],
   controllers: [PrintController],
   providers: [PrintService, PrintingListener],
 })

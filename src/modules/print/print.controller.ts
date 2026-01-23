@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseFilters } from '@nestjs/common';
 import { PrintService } from './print.service';
 import { PrintExitReceiptDTO } from './dto/print.dto';
+import { PrinterExceptionFilter } from 'src/common/filters/printer-exception.filter';
 
+@UseFilters(PrinterExceptionFilter)
 @Controller('print')
 export class PrintController {
   constructor(private readonly printService: PrintService) { }
