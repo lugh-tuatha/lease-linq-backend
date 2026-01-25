@@ -12,7 +12,7 @@ async function bootstrap() {
       'http://192.168.5.53:4200',
       'http://10.196.126.117:4200',
       'https://paradise-parking-system.vercel.app',
-      'https://paradise-parking-system.com'
+      'https://www.paradise-parking-system.com/parking'
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

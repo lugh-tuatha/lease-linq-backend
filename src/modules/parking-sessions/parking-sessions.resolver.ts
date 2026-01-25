@@ -1,11 +1,13 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
 import { ParkingSessionsService } from './parking-sessions.service';
 import { ParkingSession } from './types/parking-session.type';
 import { ParkingSessionsArgs } from './args/parking-sessions.args';
 import { CreateParkingSessionInput } from './input/create-parking-session.input';
 import { GetParkingSessionsByParkingStateArgs } from './args/get-parking-sessions-by-parking-state.args';
 import { PaginatedParkingSessions } from './types/paginated-parking-session.type';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ParkingStatistics } from './types/parking-statistics.type';
 
 @Resolver()
 export class ParkingSessionsResolver {
@@ -48,5 +50,10 @@ export class ParkingSessionsResolver {
     this.eventEmitter.emit('parking.exited', session);
 
     return session;
+  }
+
+  @Query(() => ParkingStatistics, { name: 'parkingStatistics' })
+  async getParkingStatistics(): Promise<ParkingStatistics> {
+    return this.parkingSessionsService.getParkingStatistics();
   }
 }

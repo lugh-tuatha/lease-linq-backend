@@ -14,14 +14,14 @@ export class PrintingListener {
     try {
       await this.printService.printExitReceipt({
         companyName: 'Richmond Jollyland Corp.',
-        companyAddress: '1732 Juan Luna St. Tondo, Manila',
+        companyAddress: '1722 Juan Luna St. Tondo, Manila',
         vehicleType: session.vehicleType,
         vehicleModel: session.vehicleModel,
         plateNumber: session.plateNumber,
         date: formatTime(new Date()),
         enteredAt: formatTime(session.enteredAt),
         exitedAt: formatTime(session.exitedAt),
-        durationMinutes: session.durationMinutes,
+        durationMinutes: session.durationMinutes,     
         parkingFee: session.parkingFee,
         paymentStatus: session.paymentStatus,
       });

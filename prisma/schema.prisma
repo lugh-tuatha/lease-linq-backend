@@ -8,15 +8,22 @@ datasource db {
   provider = "postgresql"
 }
 
+model Users {
+  id                String            @id @default(uuid())
+  username          String            @unique
+  password          String
+}
+
 model Organizations {
   id                String            @id @default(uuid())
   name              String   
+  address           String
   parkingSessions   ParkingSessions[]
   
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime          @updatedAt @map("updated_at")
 
-  // @@map("organizations")
+  @@map("organizations")
 }
 
 model ParkingSessions {

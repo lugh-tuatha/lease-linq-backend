@@ -2,9 +2,10 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from 'src/shared/database/prisma.service';
 import { ParkingSessionsArgs } from './args/parking-sessions.args';
 import { CreateParkingSessionInput } from './input/create-parking-session.input';
-import { ParkingState } from 'generated/prisma/enums';
+import { ParkingState, VehicleType } from 'generated/prisma/enums';
 import { GetParkingSessionsByParkingStateArgs } from './args/get-parking-sessions-by-parking-state.args';
 import { PaginatedParkingSessions } from './types/paginated-parking-session.type';
+import { ParkingStatistics } from './types/parking-statistics.type';
 
 @Injectable()
 export class ParkingSessionsService {
@@ -118,5 +119,79 @@ export class ParkingSessionsService {
         paymentStatus: 'UNPAID',
       },
     })
+  }
+
+  async getParkingStatistics(): Promise<ParkingStatistics> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const [parkedVehiclesCount, parkedMotorcyclesCount, currentlyParkedCount, revenueAggregate, totalEntriesTodayCount ] = await Promise.all([
+      this.prisma.parkingSessions.count({
+        where: {
+          enteredAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          parkingState: ParkingState.ACTIVE,
+          vehicleType: VehicleType.VEHICLE,
+        },
+      }),
+
+      this.prisma.parkingSessions.count({
+        where: {
+          enteredAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          parkingState: ParkingState.ACTIVE,
+          vehicleType: VehicleType.MOTORCYCLE,
+        },
+      }),
+
+      this.prisma.parkingSessions.count({
+        where: {
+          enteredAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          parkingState: ParkingState.ACTIVE,
+        },
+      }),
+
+      this.prisma.parkingSessions.aggregate({
+        where: {
+          enteredAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          parkingFee: {
+            not: null,
+          },
+        },
+        _sum: {
+          parkingFee: true,
+        },
+      }),
+
+      this.prisma.parkingSessions.count({
+        where: {
+          enteredAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+      }),
+    ])
+
+    return {
+      parkedVehicles: parkedVehiclesCount,
+      parkedMotorcycles: parkedMotorcyclesCount,
+      revenueToday: revenueAggregate._sum.parkingFee ?? 0,
+      currentlyParked: currentlyParkedCount,
+      totalEntriesToday: totalEntriesTodayCount,
+    };
   }
 }

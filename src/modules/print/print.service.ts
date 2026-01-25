@@ -12,7 +12,6 @@ export class PrintService {
     private readonly configService: ConfigService,
   ) {
     this.printerBaseUrl = this.configService.get<string>('printer.baseUrl')!;
-    console.log('🖨️  Printer Base URL:', this.printerBaseUrl);
   }
   
   async printHelloWorld() {
