@@ -12,6 +12,12 @@ model Users {
   id                String            @id @default(uuid())
   username          String            @unique
   password          String
+  role              String
+
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  @@map("users")
 }
 
 model Organizations {
@@ -39,6 +45,9 @@ model ParkingSessions {
   parkingState       ParkingState      @map("parking_state") @default(ACTIVE)
   paymentStatus      PaymentStatus     @map("payment_status") @default(UNPAID)
   guardRemarks       String?           @map("guard_remarks")
+  // discountType       DiscountType      @map("discount_type") @default(NONE)
+  // discountIdNumber   String?           @map("discount_id_number")
+  // discountAmount     Float?            @map("discount_amount")
 
   organizationId     String            @map("organization_id")
   organization       Organizations     @relation(fields: [organizationId], references: [id])
@@ -63,4 +72,10 @@ enum PaymentStatus {
   UNPAID
   PAID
   OVERDUE
+}
+
+enum DiscountType {
+  NONE
+  PWD
+  SENIOR
 }

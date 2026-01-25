@@ -105,7 +105,11 @@ export class ParkingSessionsService {
       (exitedAt.getTime() - session.enteredAt.getTime()) / 60000
     );
 
-    const ratePerHour = 25;
+    const RATE_PER_HOUR = {
+      VEHICLE: 25,
+      MOTORCYCLE: 20,
+    } as const
+    const ratePerHour = RATE_PER_HOUR[session.vehicleType];
     const hours = Math.ceil(durationMinutes / 60);
     const parkingFee = ratePerHour * hours;
 
