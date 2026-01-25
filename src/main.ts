@@ -10,6 +10,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:4200',
       'http://192.168.5.53:4200',
+      'http://10.196.126.117:4200',
       'https://paradise-parking-system.vercel.app',
       'https://paradise-parking-system.com'
     ],
@@ -20,8 +21,8 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 Server running on port ${port}`);
-  console.log(`📍 GraphQL endpoint: http://localhost:${port}/graphql`);
+  console.log(`Server running on port ${port}`);
+  console.log(`GraphQL endpoint: http://localhost:${port}/graphql`);
 }
 
 bootstrap();

@@ -21,7 +21,6 @@ export class PrinterExceptionFilter implements ExceptionFilter {
         ? HttpStatus.SERVICE_UNAVAILABLE
         : HttpStatus.BAD_GATEWAY;
 
-    // 🔇 concise log (1 line, not a stack trace)
     this.logger.warn(
       `Printer unavailable (${exception.code ?? 'unknown'})`,
     );

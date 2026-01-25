@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsDateString, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 import { PaymentStatus } from "generated/prisma/enums";
 
 export class PrintExitReceiptDTO {

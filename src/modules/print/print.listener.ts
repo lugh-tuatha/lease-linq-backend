@@ -34,13 +34,13 @@ export class PrintingListener {
   async handleParkingCreated(session: any) {
     try {
       await this.printService.printEntryTicket({
-        companyName: "Richmond Jollyland Corp.",
+        companyName: 'Richmond Jollyland Corp.',
         plateNumber: session.plateNumber,
         vehicleType: session.vehicleType,
         entryTime: formatTime(session.enteredAt), 
         ticketNumber: "sessionId", 
-        qrCodeData: "sessionId", 
-        penaltyAmount: "P500.00"
+        qrCodeData: "https://i.pinimg.com/474x/ed/a8/ce/eda8ced542ccdc4cae46a813f061747e.jpg", 
+        penaltyAmount: "P150.00"
       });
     } catch (err) {
       this.logger.error('Entry ticket printing failed', err);

@@ -41,6 +41,7 @@ export class ParkingSessionsService {
   async createParkingSession(input: CreateParkingSessionInput) {
     const newSession = await this.prisma.parkingSessions.create({
       data: {
+        organizationId: "9ed47d8e-f82d-4016-a770-fc3c93563762",
         vehicleType: input.vehicleType,
         plateNumber: input.plateNumber,
         enteredAt: new Date(),
@@ -61,7 +62,7 @@ export class ParkingSessionsService {
         },
         // take: limit,
         // skip: skip,
-        orderBy: { createdAt: 'desc' }
+        orderBy: { exitedAt: 'asc' }
       }),
       this.prisma.parkingSessions.count({
         where: {

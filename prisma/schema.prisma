@@ -8,30 +8,43 @@ datasource db {
   provider = "postgresql"
 }
 
-model ParkingSessions {
-  id                String            @id @default(uuid())  
-  vehicleType       VehicleType       @map("vehicle_type")
-  vehicleModel      String?           @map("vehicle_model")
-  plateNumber       String            @map("plate_number")
-  enteredAt         DateTime          @map("entered_at")
-  exitedAt          DateTime?         @map("exited_at")
-  parkingCredits    Float?            @map("parking_credits")
-  durationMinutes   Int?              @map("duration_minutes")
-  parkingFee        Float?            @map("parking_fee")
-  parkingState      ParkingState      @map("parking_state") @default(ACTIVE)
-  paymentStatus     PaymentStatus     @map("payment_status") @default(UNPAID)
-  guardRemarks      String?           @map("guard_remarks")
+model Organizations {
+  id                String            @id @default(uuid())
+  name              String   
+  parkingSessions   ParkingSessions[]
+  
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
 
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  // @@map("organizations")
+}
+
+model ParkingSessions {
+  id                 String            @id @default(uuid())  
+  vehicleType        VehicleType       @map("vehicle_type")
+  vehicleModel       String?           @map("vehicle_model")
+  plateNumber        String            @map("plate_number")
+  enteredAt          DateTime          @map("entered_at")
+  exitedAt           DateTime?         @map("exited_at")
+  parkingCredits     Float?            @map("parking_credits")
+  durationMinutes    Int?              @map("duration_minutes")
+  parkingFee         Float?            @map("parking_fee")
+  parkingState       ParkingState      @map("parking_state") @default(ACTIVE)
+  paymentStatus      PaymentStatus     @map("payment_status") @default(UNPAID)
+  guardRemarks       String?           @map("guard_remarks")
+
+  organizationId     String            @map("organization_id")
+  organization       Organizations     @relation(fields: [organizationId], references: [id])
+
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@map("parking_sessions")
 }
 
 enum VehicleType {
-  CAR
-  MOTOR
-  VAN
+  VEHICLE
+  MOTORCYCLE
 }
 
 enum ParkingState {
