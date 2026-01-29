@@ -12,13 +12,17 @@ const users: any[] = [
     username: 'guard',
     password: 'root',
     role: 'user',
-  }
+  },
+  {
+    id: 3,
+    username: 'richmondfinance',
+    password: 'finance',
+    role: 'thetaxman',
+  },
 ]
 
 @Injectable()
 export class UsersService {
-  private readonly TOKEN_KEY = 'access_token';
-
   async findUserByName(username: string): Promise<any | undefined> {
     return users.find((user) => user.username === username);
   }

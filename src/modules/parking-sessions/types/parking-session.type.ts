@@ -22,8 +22,8 @@ export class ParkingSession {
   @Field()
   id: string;
   
-  @Field(() => VehicleType, { nullable: true })
-  vehicleType?: VehicleType | null;
+  @Field(() => VehicleType)
+  vehicleType: VehicleType;
   
   @Field(() => String, { nullable: true })
   vehicleModel?: string | null;

@@ -6,6 +6,9 @@ import { ParkingState, VehicleType } from 'generated/prisma/enums';
 import { GetParkingSessionsByParkingStateArgs } from './args/get-parking-sessions-by-parking-state.args';
 import { PaginatedParkingSessions } from './types/paginated-parking-session.type';
 import { ParkingStatistics } from './types/parking-statistics.type';
+import { GetParkingStatistics } from './args/get-parking-statistics.args';
+import { GetVehicleStatsArgs } from './args/get-vehicle-type.args';
+import { VehicleStats } from './types/vehicle-stats.type';
 
 @Injectable()
 export class ParkingSessionsService {
@@ -40,12 +43,25 @@ export class ParkingSessionsService {
   }
 
   async createParkingSession(input: CreateParkingSessionInput) {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+
+    const currentDate = new Date();
+
+    const occuranceDate = formatter.format(currentDate); 
+    console.log(occuranceDate)
+
     const newSession = await this.prisma.parkingSessions.create({
       data: {
         organizationId: "9ed47d8e-f82d-4016-a770-fc3c93563762",
         vehicleType: input.vehicleType,
         plateNumber: input.plateNumber,
         enteredAt: new Date(),
+        occuranceDate,
       },
     });
 
@@ -53,13 +69,26 @@ export class ParkingSessionsService {
   }
 
   async getParkingSessionsByParkingState(args: GetParkingSessionsByParkingStateArgs): Promise<PaginatedParkingSessions> {
-    const { page = 1, limit = 10, parkingState } = args;
+    const { page = 1, limit = 10, parkingState, date } = args;
     const skip = (page - 1) * limit;
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+
+    const currentDate = new Date();
+
+    const occuranceDate = formatter.format(currentDate); 
+    console.log(occuranceDate)
 
     const [data, total] = await Promise.all([
       this.prisma.parkingSessions.findMany({
         where: {
           parkingState: parkingState,
+          occuranceDate: date,
         },
         // take: limit,
         // skip: skip,
@@ -100,7 +129,15 @@ export class ParkingSessionsService {
       throw new BadRequestException('Parking session already exited');
     }
 
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+
     const exitedAt = new Date();
+    const occuranceDate = formatter.format(exitedAt); 
     const durationMinutes = Math.ceil(
       (exitedAt.getTime() - session.enteredAt.getTime()) / 60000
     );
@@ -120,57 +157,40 @@ export class ParkingSessionsService {
         exitedAt,
         durationMinutes,
         parkingFee,
-        paymentStatus: 'UNPAID',
+        paymentStatus: 'PAID',
+        occuranceDate,
       },
     })
   }
 
-  async getParkingStatistics(): Promise<ParkingStatistics> {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-
+  async getParkingStatistics(args: GetParkingStatistics): Promise<ParkingStatistics> {
     const [parkedVehiclesCount, parkedMotorcyclesCount, currentlyParkedCount, revenueAggregate, totalEntriesTodayCount ] = await Promise.all([
       this.prisma.parkingSessions.count({
         where: {
-          enteredAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-          parkingState: ParkingState.ACTIVE,
-          vehicleType: VehicleType.VEHICLE,
+          occuranceDate: args.date, 
+          parkingState: args.parkingState,
+          vehicleType: VehicleType.CAR,
         },
       }),
 
       this.prisma.parkingSessions.count({
         where: {
-          enteredAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-          parkingState: ParkingState.ACTIVE,
+          occuranceDate: args.date, 
+          parkingState: args.parkingState,
           vehicleType: VehicleType.MOTORCYCLE,
         },
       }),
 
       this.prisma.parkingSessions.count({
         where: {
-          enteredAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-          parkingState: ParkingState.ACTIVE,
+          occuranceDate: args.date,
+          parkingState: args.parkingState,
         },
       }),
 
       this.prisma.parkingSessions.aggregate({
         where: {
-          enteredAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
+          occuranceDate: args.date,
           parkingFee: {
             not: null,
           },
@@ -182,10 +202,7 @@ export class ParkingSessionsService {
 
       this.prisma.parkingSessions.count({
         where: {
-          enteredAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
+          occuranceDate: args.date,
         },
       }),
     ])
@@ -197,5 +214,45 @@ export class ParkingSessionsService {
       currentlyParked: currentlyParkedCount,
       totalEntriesToday: totalEntriesTodayCount,
     };
+  }
+
+  async getVehicleStats(args: GetVehicleStatsArgs): Promise<VehicleStats[]> {
+    const { date } = args;
+
+
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const [parkedVehiclesCount, parkedMotorcyclesCount] = await Promise.all([
+      this.prisma.parkingSessions.count({
+        where: {
+          parkingState: ParkingState.EXITED,
+          vehicleType: VehicleType.CAR,
+          exitedAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+      }),
+
+      this.prisma.parkingSessions.count({
+        where: {
+          parkingState: ParkingState.EXITED,
+          vehicleType: VehicleType.MOTORCYCLE,
+          exitedAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+      }),
+    ]);
+
+    return [
+      { name: 'CAR', value: parkedVehiclesCount },
+      { name: 'MOTOR', value: parkedMotorcyclesCount },
+    ];
   }
 }

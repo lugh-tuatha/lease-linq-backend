@@ -41,13 +41,16 @@ model ParkingSessions {
   exitedAt           DateTime?         @map("exited_at")
   parkingCredits     Float?            @map("parking_credits")
   durationMinutes    Int?              @map("duration_minutes")
-  parkingFee         Float?            @map("parking_fee")
   parkingState       ParkingState      @map("parking_state") @default(ACTIVE)
   paymentStatus      PaymentStatus     @map("payment_status") @default(UNPAID)
   guardRemarks       String?           @map("guard_remarks")
-  // discountType       DiscountType      @map("discount_type") @default(NONE)
-  // discountIdNumber   String?           @map("discount_id_number")
-  // discountAmount     Float?            @map("discount_amount")
+  discountType       DiscountType      @map("discount_type") @default(NONE)
+  discountHolderName String?           @map("discount_holder_name")
+  discountIdNumber   String?           @map("discount_id_number")
+  discountAmount     Float?            @map("discount_amount")
+  parkingFee         Float?            @map("parking_fee")
+  occuranceDate      String            @map("occurance_date")
+  includeInBIRReport Boolean           @map("include_in_bir_report") @default(false)
 
   organizationId     String            @map("organization_id")
   organization       Organizations     @relation(fields: [organizationId], references: [id])
@@ -59,8 +62,9 @@ model ParkingSessions {
 }
 
 enum VehicleType {
-  VEHICLE
+  CAR
   MOTORCYCLE
+  TRUCK
 }
 
 enum ParkingState {
@@ -76,6 +80,6 @@ enum PaymentStatus {
 
 enum DiscountType {
   NONE
-  PWD
-  SENIOR
+  PWD_SENIOR
+  DELIVERY_VEHICLE
 }

@@ -8,6 +8,9 @@ import { CreateParkingSessionInput } from './input/create-parking-session.input'
 import { GetParkingSessionsByParkingStateArgs } from './args/get-parking-sessions-by-parking-state.args';
 import { PaginatedParkingSessions } from './types/paginated-parking-session.type';
 import { ParkingStatistics } from './types/parking-statistics.type';
+import { GetParkingStatistics } from './args/get-parking-statistics.args';
+import { VehicleStats } from './types/vehicle-stats.type';
+import { GetVehicleStatsArgs } from './args/get-vehicle-type.args';
 
 @Resolver()
 export class ParkingSessionsResolver {
@@ -53,7 +56,16 @@ export class ParkingSessionsResolver {
   }
 
   @Query(() => ParkingStatistics, { name: 'parkingStatistics' })
-  async getParkingStatistics(): Promise<ParkingStatistics> {
-    return this.parkingSessionsService.getParkingStatistics();
+  async getParkingStatistics(
+    @Args() args: GetParkingStatistics
+  ): Promise<ParkingStatistics> {
+    return this.parkingSessionsService.getParkingStatistics(args);
+  }
+
+  @Query(() => [VehicleStats], { name: 'vehicleStats' })
+  async getVehicleStats(
+    @Args() args: GetVehicleStatsArgs
+  ): Promise<VehicleStats[]> {
+    return this.parkingSessionsService.getVehicleStats(args);
   }
 }

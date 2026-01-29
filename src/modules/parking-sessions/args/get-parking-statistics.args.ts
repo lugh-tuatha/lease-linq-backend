@@ -3,7 +3,7 @@ import { ParkingState } from "generated/prisma/enums";
 import { PaginationArgs } from "src/common/args/pagination.args";
 
 @ArgsType()
-export class GetParkingSessionsByParkingStateArgs extends PaginationArgs {
+export class GetParkingStatistics {
   @Field()
   parkingState: ParkingState;
 
