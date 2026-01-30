@@ -1,5 +1,5 @@
 import { Field, InputType } from "@nestjs/graphql";
-import { VehicleType } from "generated/prisma/enums";
+import { DiscountType, VehicleType } from "generated/prisma/enums";
 
 @InputType()
 export class CreateParkingSessionInput {
@@ -8,4 +8,13 @@ export class CreateParkingSessionInput {
 
   @Field()
   plateNumber: string;
-  }
+
+  // @Field()
+  // discountType: DiscountType;
+
+  // @Field()
+  // discountHolderName: string;
+
+  // @Field()
+  // discountIdNumber: string;
+}

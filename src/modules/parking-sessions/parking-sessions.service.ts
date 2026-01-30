@@ -9,6 +9,7 @@ import { ParkingStatistics } from './types/parking-statistics.type';
 import { GetParkingStatistics } from './args/get-parking-statistics.args';
 import { GetVehicleStatsArgs } from './args/get-vehicle-type.args';
 import { VehicleStats } from './types/vehicle-stats.type';
+import { Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class ParkingSessionsService {
@@ -53,7 +54,6 @@ export class ParkingSessionsService {
     const currentDate = new Date();
 
     const occuranceDate = formatter.format(currentDate); 
-    console.log(occuranceDate)
 
     const newSession = await this.prisma.parkingSessions.create({
       data: {
@@ -62,6 +62,9 @@ export class ParkingSessionsService {
         plateNumber: input.plateNumber,
         enteredAt: new Date(),
         occuranceDate,
+        // discountType: input.discountType,
+        // discountHolderName: input.discountHolderName,
+        // discountIdNumber: input.discountIdNumber,
       },
     });
 
@@ -69,27 +72,23 @@ export class ParkingSessionsService {
   }
 
   async getParkingSessionsByParkingState(args: GetParkingSessionsByParkingStateArgs): Promise<PaginatedParkingSessions> {
-    const { page = 1, limit = 10, parkingState, date } = args;
+    const { page = 1, limit = 10, parkingState, date, includeInBIRReport } = args;
     const skip = (page - 1) * limit;
 
-    const formatter = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Manila',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
+    const occuranceDate = date || new Date().toISOString().split('T')[0]; 
 
-    const currentDate = new Date();
+    const where: Prisma.ParkingSessionsWhereInput = {
+      parkingState: parkingState,
+      occuranceDate: occuranceDate,
+    };
 
-    const occuranceDate = formatter.format(currentDate); 
-    console.log(occuranceDate)
+    if (includeInBIRReport !== undefined) {
+      where.includeInBIRReport = includeInBIRReport;
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.parkingSessions.findMany({
-        where: {
-          parkingState: parkingState,
-          occuranceDate: date,
-        },
+        where,
         // take: limit,
         // skip: skip,
         orderBy: { exitedAt: 'asc' }
@@ -143,8 +142,9 @@ export class ParkingSessionsService {
     );
 
     const RATE_PER_HOUR = {
-      VEHICLE: 25,
-      MOTORCYCLE: 20,
+      [VehicleType.CAR]: 25,
+      [VehicleType.MOTORCYCLE]: 20,
+      [VehicleType.TRUCK]: 100,
     } as const
     const ratePerHour = RATE_PER_HOUR[session.vehicleType];
     const hours = Math.ceil(durationMinutes / 60);
@@ -164,33 +164,40 @@ export class ParkingSessionsService {
   }
 
   async getParkingStatistics(args: GetParkingStatistics): Promise<ParkingStatistics> {
+    const baseWhere: Prisma.ParkingSessionsWhereInput = {
+      parkingState: args.parkingState,
+      occuranceDate: args.date,
+    };
+
+
+    if (args.includeInBIRReport !== undefined) {
+      baseWhere.includeInBIRReport = args.includeInBIRReport;
+    }
+
     const [parkedVehiclesCount, parkedMotorcyclesCount, currentlyParkedCount, revenueAggregate, totalEntriesTodayCount ] = await Promise.all([
       this.prisma.parkingSessions.count({
         where: {
-          occuranceDate: args.date, 
-          parkingState: args.parkingState,
+          ...baseWhere,
           vehicleType: VehicleType.CAR,
         },
       }),
 
       this.prisma.parkingSessions.count({
         where: {
-          occuranceDate: args.date, 
-          parkingState: args.parkingState,
+          ...baseWhere,
           vehicleType: VehicleType.MOTORCYCLE,
         },
       }),
 
       this.prisma.parkingSessions.count({
         where: {
-          occuranceDate: args.date,
-          parkingState: args.parkingState,
+          ...baseWhere,
         },
       }),
 
       this.prisma.parkingSessions.aggregate({
         where: {
-          occuranceDate: args.date,
+          ...baseWhere,
           parkingFee: {
             not: null,
           },
@@ -254,5 +261,14 @@ export class ParkingSessionsService {
       { name: 'CAR', value: parkedVehiclesCount },
       { name: 'MOTOR', value: parkedMotorcyclesCount },
     ];
+  }
+
+  async includeParkingSessionInBIR(id: string) {
+    return this.prisma.parkingSessions.update({
+      where: { id },
+      data: {
+        includeInBIRReport: true,
+      },
+    })
   }
 }

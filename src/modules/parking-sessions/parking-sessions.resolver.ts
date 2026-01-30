@@ -68,4 +68,13 @@ export class ParkingSessionsResolver {
   ): Promise<VehicleStats[]> {
     return this.parkingSessionsService.getVehicleStats(args);
   }
+
+  @Mutation(() => ParkingSession, { name: 'includeParkingSessionInBIR' })
+  async includeParkingSessionInBIR(
+    @Args('id', { type: () => String }) id: string,
+  ): Promise<ParkingSession> {
+    const session = await this.parkingSessionsService.includeParkingSessionInBIR(id);
+
+    return session;
+  }
 }

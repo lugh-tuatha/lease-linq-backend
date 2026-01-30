@@ -9,4 +9,7 @@ export class GetParkingStatistics {
 
   @Field()
   date: string;
+
+  @Field(() => Boolean, { nullable: true })
+  includeInBIRReport?: boolean;
 }

@@ -9,4 +9,7 @@ export class GetParkingSessionsByParkingStateArgs extends PaginationArgs {
 
   @Field()
   date: string;
+
+  @Field(() => Boolean, { nullable: true })
+  includeInBIRReport?: boolean;
 }

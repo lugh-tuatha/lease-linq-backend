@@ -54,4 +54,7 @@ export class ParkingSession {
 
   @Field(() => String, { nullable: true })
   guardRemarks?: string | null;
+
+  @Field(() => Boolean)
+  includeInBIRReport: boolean;
 }
